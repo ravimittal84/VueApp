@@ -1,0 +1,7 @@
+<template>
+  <footer class="footer">
+      <div class="container-fluid">
+        <span>Place sticky footer content here.</span>
+      </div>
+    </footer>
+</template>
