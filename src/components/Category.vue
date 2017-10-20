@@ -14,7 +14,7 @@
 
 <script>
 import Post from './post.vue';
-import appService from '../app.service';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
     name: 'Category',
@@ -24,24 +24,23 @@ export default {
     data() {
         return {
             id: this.$route.params.id,
-            msg: 'Welcome to Your App',
-            posts: []
+            msg: 'Welcome to Your App'
         }
+    },
+    computed: {
+        ...mapGetters('postsModule', ['posts'])
     },
     methods: {
         loadPosts() {
             let categoryId = 2;
-            if (this.id === 'mobile') {
+            if (this.$route.params.id === 'mobile') {
                 categoryId = 11;
             }
-            appService.getposts(categoryId).then(data => {
-                this.posts = data;
-            });
+            this.$store.dispatch('postsModule/updateCategory', categoryId)
         }
     },
     watch: {
         '$route'(to, form) {
-            this.id = to.params.id;
             this.loadPosts();
         }
     },

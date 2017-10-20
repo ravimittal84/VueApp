@@ -3,7 +3,7 @@
         <div v-if="isAuthenticated">
             <div class="row">
                 <div class="col-9">
-                    Hello {{profile.firstName}}!
+                    Hello {{username}}!
                 </div>
                 <div class="col">
                     <button @click="logout" class="btn btn-default">Logout</button>
@@ -27,58 +27,45 @@
 </template>
 
 <script>
-import appService from '../app.service';
+// import eventBus from '../event-bus';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
     name: 'Login',
     data() {
         return {
             username: '',
-            password: '',
-            isAuthenticated: false,
-            profile: {}
+            password: ''
         }
     },
-    watch: {
-        isAuthenticated: function(val) {
-            if (val) {
-                appService.getProfile()
-                    .then(data => {
-                        this.profile = data;
-                    });
-            } else {
-                this.profile = {};
-            }
-        }
-    },
+    // watch: {
+    //     isAuthenticated: function(val) {
+    //         if (val) {
+    //             appService.getProfile()
+    //                 .then(data => {
+    //                     this.profile = data;
+    //                 });
+    //         } else {
+    //             this.profile = {};
+    //         }
+
+    //         eventBus.$emit('authStatusUpdate', val);
+    //     }
+    // },
     methods: {
+        ...mapActions({
+            logout: 'logout'
+        }),
         login() {
-            appService.login({ username: this.username, password: this.password })
-                .then(data => {
-                    window.localStorage.setItem('token', data.token);
-                    window.localStorage.setItem('tokenExpiration', data.expiration);
+            this.$store.dispatch('login', { username: this.username, password: this.password})
+                .then(() => {
                     this.username = '';
                     this.password = '';
-                    this.isAuthenticated = true;
-                }).catch(res => {
-                    window.alert('could not login!');
-                    console.log(res);
                 });
-        },
-        logout() {
-            window.localStorage.removeItem('token');
-            window.localStorage.removeItem('tokenExpiration');
-            this.isAuthenticated = false;
-            this.profile = {};
         }
     },
-    created() {
-        let expiration = window.localStorage.getItem('tokenExpiration');
-        var unixTimestamp = new Date().getTime() / 1000;
-        if (expiration !== null && parseInt(expiration) - unixTimestamp > 0) {
-            this.isAuthenticated = true;
-            this.profile = {};
-        }
+    computed: {
+        ...mapGetters(['isAuthenticated'])
     }
 }
 </script>
